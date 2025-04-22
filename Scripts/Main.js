@@ -1,197 +1,448 @@
-//Costume Data Class
-import {costumeData, outfitPositions} from './CostumeData.js'
+//Asset Loader Class
+import AssetLoader from './AssetLoader.js'
 
-// UI Buttons Class
-import UIButton, {OutfitButton} from './UIButton.js'
+// UI Manager Class
+import {UIManager} from './UI/UIManager.js'
 
+// OutfitButton Class
+import {OutfitButton} from './UI/UIButton.js'
+
+//DialogueManager Class
+import {DialogueManager} from './Dialogue System/DialogueManager.js'
+
+//DialogueData Class
+import {DialogueData} from './Dialogue System/DialogueData.js'
+
+//CutsceneSystem Class
+import {CutsceneSystem} from './Cutscene System/CutsceneSystem.js'
+
+
+
+//Stat Tracker Class
+import {statTracker} from './Outfit Data/CostumeManager.js'
+
+//Audio Manager Class
+import {AudioManager} from './Audio System/AudioManager.js'
+
+
+function loadFont(name, url) {
+    const newFont = new FontFace(name, `url(${url})`);
+    newFont.load().then(function (loaded) {
+        document.fonts.add(loaded);
+        console.log(`Font "${name}" has been loaded.`);
+    }).catch(function (error) {
+        console.error(`Failed to load font "${name}":`, error);
+    });
+}
 
 // Main Game Scene
 class Main extends Phaser.Scene {
     constructor() {
         super({ key: 'MainScene' });
-        this.outfit1 = null;
     }
 
     preload() {
-        //RexUI Plugin
-        this.load.scenePlugin({
-        key: 'rexuiplugin',
-        url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-	notes/master/dist/rexuiplugin.min.js',
-        sceneKey: 'rexUI'
-        });
+        loadFont('pixelFont', 'Asset/Font/Pixellari.ttf');
 
-        //Background
-        this.load.image('background', 'Asset/Background/Cisini_UI_DressUp_Background.png');
-        
-        //player default
-        this.load.image('player', 'Asset/Character/t_basebody_mc_anime_portrait.png');
-        this.load.image('expression', 'Asset/Character/Normal.png');
-        this.load.image('hair', 'Asset/Outfit/Hairs_upscaled/hair_01_black_F_out.png');
-        
-        //outfit panel
-        this.load.image('outfitPanel', 'Asset/UI/Cisini_UI_Buy_Background.png');
-
-        //outfit type buttons
-        this.load.image('outfitButton', 'Asset/UI/Cisini_UI_DressUp_MenuIcon_2.png');
-        this.load.image('dressIcon', 'Asset/UI/Cisini_UI_DressUp_Dress_Icon.png');
-        this.load.image('outerIcon', 'Asset/UI/Cisini_UI_DressUp_Outer_Icon.png');
-        this.load.image('underwearIcon', 'Asset/UI/Cisini_UI_DressUp_Underwear_Icon.png');
-        this.load.image('uniformIcon', 'Asset/UI/Cisini_UI_DressUp_Uniform_Icon.png');
-        this.load.image('socksIcon', 'Asset/UI/Cisini_UI_DressUp_Socks_Icon.png');
-        this.load.image('shoesIcon', 'Asset/UI/Cisini_UI_DressUp_Shoes_Icon.png');
-
-        //Outfits
-        //Dress
-        this.load.image('dress1', 'Asset/Outfit/terusan17.png');
-        this.load.image('dress2', 'Asset/Outfit/Terusan/kebaya1.png');
-
-        //Shirts
-        this.load.image('shirt1', 'Asset/Outfit/Baju/baju_20.png');
-        this.load.image('shirt2', 'Asset/Outfit/Baju/baju_01.png');
-
-        //Underwear
-        this.load.image('underwear1', 'Asset/Outfit/Bawahan/celana_33.png');
-
-        //Uniform
-        //Socks
-        this.load.image('socks1', 'Asset/Outfit/Kaos Kaki/kaoskaki_29.png');
-
-        //Shoes
-        this.load.image('shoes1', 'Asset/Outfit/Sepatu/sepatu_14.png');
-
-        //Outfit Buttons
-        this.load.image('button1', 'Asset/UI/Cisini_UI_DressUp_Menu_DressInventory_2.png');
-
-        //Dress
-        this.load.image('dress1Icon', 'Asset/Outfit/ikon/Terusan/terusan17.png');
-        this.load.image('dress2Icon', 'Asset/Outfit/ikon/Terusan/Kebaya_1.png');
-
-        //Shirts
-        this.load.image('shirt1Icon', 'Asset/Outfit/ikon/Baju/baju_20.png');
-        this.load.image('shirt2Icon', 'Asset/Outfit/ikon/Baju/baju_01.png');
-
-        //Underwear
-        this.load.image('underwear1Icon', 'Asset/Outfit/ikon/Bawahan/celana33.png');
-
-        //Uniform
-        //Socks
-        this.load.image('socks1Icon', 'Asset/Outfit/ikon/Kaos Kaki/kaoskaki_29.png');
-        //Shoes
-        this.load.image('shoes1Icon', 'Asset/Outfit/ikon/Sepatu/sepatu_14.png');
+        AssetLoader.loadAllAssets(this);
+        this.DialogueManager = new DialogueManager(this);
+        this.CutsceneSystem = new CutsceneSystem(this);
+        this.statTracker = new statTracker(this);
+        this.AudioManager = new AudioManager(this);
     }
 
     create() {
-        const gameWidth = this.scale.width;  
-        const gameHeight = this.scale.height; 
-        const centerX = gameWidth / 2;
-        const centerY = gameHeight / 2;
-
-        this.changeFilterMode();
-        this.setupUI();               
-        this.setupCostumeButtons(this);
-        this.setupCharacter();
-        this.setupOutfitButtons();
-    }
-    changeFilterMode(){
-        this.textures.get('outfitPanel').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('outfitButton').setFilter(Phaser.Textures.FilterMode.NEAREST);
-         this.textures.get('button1').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('dressIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('outerIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('underwearIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('uniformIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('socksIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-        this.textures.get('shoesIcon').setFilter(Phaser.Textures.FilterMode.NEAREST);
-    }
-
-    setupUI() {
-        const gameWidth = this.scale.width;  
-        const gameHeight = this.scale.height;
-        const centerX = this.scale.width / 2;
-        const centerY = this.scale.height / 2;
-        this.add.image(centerX, centerY, 'background').setOrigin(0.5, 0.5);
+        this.UIManager = new UIManager(this, this.AudioManager);
+        this.dialogueContainer = {};
+        this.AudioManager.initializeSounds();
+        this.cutsceneSystem = new CutsceneSystem(this);
+        this.CutsceneSystem.initiateCutscene1();
+        this.DialogueManager.createDialogueUI();
         
-        const panelHeight = gameHeight * 0.20; 
-        const panelY = gameHeight - (panelHeight / 2)
-        this.bottomPanel = this.add.image(centerX, panelY, 'outfitPanel')
-            .setDisplaySize(gameWidth * 2, panelHeight) 
-            .setOrigin(0.5, 0.5);
+        //this.setupDressMiniGame();
+
     }
 
-    setupCostumeButtons(scene){
-        this.outfitButtons = {};
+    initializeDialogueSystem() {
+        this.DialogueManager = new DialogueManager(this);
+        this.DialogueManager.createDialogueUI();
+    }
+   
+    setupDressMiniGame(){
+       
+        this.UIManager.setupScene(this);
+        this.UIManager.setupCostumeButtons(this);
+        this.UIManager.setupCategoryButtons(this);
+        this.cutsceneSystem.createContinueButton();
+    }
 
-      
-        //Add buttons for costumeData and push them into an array depending on type of costume
-        costumeData.forEach(({ name, outfitType, x, y, textureAnime, textureButton, textureIcon }) => {
+    displayCategoryButtons() {
+        this.categoryButtonsPanel.setVisible(true);
 
-            const { x: outfitX, y: outfitY } = outfitPositions[outfitType] || { x: 0, y: 0 };
-            const button = new OutfitButton(scene, name, outfitType, x, y, outfitX, outfitY, textureAnime, textureButton, textureIcon);
-            button.container.setVisible(false); // Hide the button initially
-
-          
-
-
-            // Store the button in an array by outfit type
-            if (!this.outfitButtons[outfitType]) {
-                this.outfitButtons[outfitType] = [];
-            }
-            this.outfitButtons[outfitType].push(button);
+        const buttons = [this.dressShirtButton, this.outerButton, this.underwearButton, this.uniformButton, this.socksButton, this.shoesButton];
+        buttons.forEach(button => {
+            if (button) button.setVisible(true);
         });
 
+        this.tweens.add({
+            targets: this.categoryButtonsPanel,
+            x: this.scale.width - 100,
+            duration: 500,
+            repeat: 0,
+            ease: 'Sine.easeInOut',
+            onComplete: () => {
+                this.tweens.add({
+                    targets: buttons,
+                    alpha: 1,
+                    duration: 500,
+                    ease: 'Linear'
+                });
+            }
+        });
 
+        this.tweens.add({
+            targets: this.openButton,
+            x: this.scale.width - 200,
+            duration: 500,
+            repeat: 0,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Tween the player and related elements
+        const newPlayerX = this.scale.width / 4.2;
+        this.tweens.add({
+            targets: [this.player, this.hair, this.expression],
+            x: newPlayerX,
+            duration: 500,
+            repeat: 0,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.tweens.add({
+            targets: [this.background],
+            x: this.scale.width,
+            duration: 500,
+            repeat: 0,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Tween all selected outfits to follow the player
+        console.log(`displayCategoryButtons: player.y = ${this.player.y}`); // Debug log
+        Object.values(this.outfitButtons).flat().forEach(outfitButton => {
+            outfitButton.tweenOutfit(newPlayerX, this.player.y, 500, 'Sine.easeInOut');
+        });
     }
 
-    setupCharacter() {
-        const centerX = this.scale.width / 2;
-        const centerY = this.scale.height / 2;
-        this.add.image(centerX / 2, centerY, 'player').setScale(0.6);
-        this.add.image(centerX / 2.05, centerY / 1.72, 'expression').setScale(0.9);
-        this.add.image(centerX / 2.05, centerY / 1.6, 'hair').setScale(0.25);
+    hideCategoryButtons() {
+        return new Promise((resolve) => {
+            const buttons = [this.dressShirtButton, this.outerButton, this.underwearButton, this.uniformButton, this.socksButton, this.shoesButton];
+            buttons.forEach(button => {
+                if (button) this.tweens.killTweensOf(button);
+            });
+
+            this.tweens.add({
+                targets: buttons,
+                alpha: 0,
+                duration: 100,
+                ease: 'Linear',
+                onComplete: () => {
+                    buttons.forEach(button => {
+                        if (button) button.setVisible(false);
+                    });
+
+                    // Create promises for all tweens
+                    const panelTweenPromise = new Promise((panelResolve) => {
+                        this.tweens.add({
+                            targets: [this.categoryButtonsPanel],
+                            x: this.scale.width + 100,
+                            duration: 300,
+                            ease: 'Sine.easeInOut',
+                            onComplete: () => {
+                                this.categoryButtonsPanel.setVisible(false);
+                                panelResolve();
+                            }
+                        });
+                    });
+
+                    const openButtonTweenPromise = new Promise((openButtonResolve) => {
+                        this.tweens.add({
+                            targets: this.openButton,
+                            x: this.scale.width - 20,
+                            duration: 300,
+                            ease: 'Sine.easeInOut',
+                            onComplete: openButtonResolve
+                        });
+                    });
+
+                    const playerTweenPromise = new Promise((playerResolve) => {
+                        const newPlayerX = this.scale.width / 2;
+                        this.tweens.add({
+                            targets: [this.player, this.hair, this.expression],
+                            x: newPlayerX,
+                            duration: 500,
+                            repeat: 0,
+                            ease: 'Sine.easeInOut',
+                            onComplete: playerResolve
+                        });
+
+                        // Tween all selected outfits to follow the player
+                        Object.values(this.outfitButtons).flat().forEach(outfitButton => {
+                            outfitButton.tweenOutfit(newPlayerX, this.player.y, 500, 'Sine.easeInOut');
+                        });
+                    });
+
+                    const backgroundTweenPromise = new Promise((backgroundResolve) => {
+                        this.tweens.add({
+                            targets: [this.background],
+                            x: this.scale.width + 190,
+                            duration: 500,
+                            repeat: 0,
+                            ease: 'Sine.easeInOut',
+                            onComplete: backgroundResolve
+                        });
+                    });
+
+                    // Wait for all tweens to complete before resolving
+                    Promise.all([
+                        panelTweenPromise,
+                        openButtonTweenPromise,
+                        playerTweenPromise,
+                        backgroundTweenPromise
+                    ]).then(() => {
+                        resolve();
+                    });
+                }
+            });
+        });
     }
 
-    setupOutfitButtons() {
-        if (!this.bottomPanel) return;
-        this.activeCategoryButtons = {};
-        const categories = ["Dress", "Shirt", "Underwear", "Uniform", "Socks", "Shoes"];
-        const icons = ['dressIcon', 'outerIcon', 'underwearIcon', 'uniformIcon', 'socksIcon', 'shoesIcon'];
-        const numButtons = categories.length;
-        let dressButton = new UIButton(this, this.scale.width -100, this.scale.height -850, 'outfitButton', 'dressIcon', () =>{console.log("Button clicked!"); this.displayButtons("Dress");});
-        let outerButton = new UIButton(this, this.scale.width -100, this.scale.height - 700, 'outfitButton', 'outerIcon', () => {console.log("Button clicked!"); this.displayButtons("Shirt")});
-        let underwearButton = new UIButton(this, this.scale.width -100, this.scale.height - 550, 'outfitButton', 'underwearIcon', () => {console.log("Button clicked!"); this.displayButtons("Underwear")});
-        let uniformButton = new UIButton(this, this.scale.width -100, this.scale.height - 400, 'outfitButton', 'uniformIcon', () => {console.log("Button clicked!"); });
-        let socksButton = new UIButton(this, this.scale.width -100, this.scale.height - 250, 'outfitButton', 'socksIcon', () => {console.log("Button clicked!"); this.displayButtons("Socks")});
-        let shoesButton = new UIButton(this, this.scale.width -100, this.scale.height - 100, 'outfitButton', 'shoesIcon', () => {console.log("Button clicked!"); this.displayButtons("Shoes")});
-    }
+    async displayButtons(outfitType) {
+        const isDressSelected = !!OutfitButton.selectedOutfits["Dress"];
 
-   displayButtons(outfitType) {
-        // Hide all outfit buttons first
-        Object.keys(this.outfitButtons).forEach(type => {
+        this.activePanel = "outfit";
+        this.UIManager.setCostumeButtons(outfitType, this);
+        this.outfitButtonsTypePanel.setVisible(true);
+        this.currentType = outfitType;
+
+        const typesToHide = outfitType === "DressShirt" 
+            ? Object.keys(this.outfitButtons).filter(type => type !== "Dress" && type !== "Shirt")
+            : Object.keys(this.outfitButtons).filter(type => type !== outfitType);
+
+        typesToHide.forEach(type => {
             this.outfitButtons[type].forEach(button => button.container.setVisible(false));
         });
 
-        // Show only the selected outfit type
-        if (this.outfitButtons[outfitType]) {
-            this.outfitButtons[outfitType].forEach(button => button.container.setVisible(true));
+        await this.hideCategoryButtons();
+
+        let buttonsToShow = [];
+        if (outfitType === "DressShirt") {
+            buttonsToShow = [...(this.outfitButtons["Dress"] || []), ...(this.outfitButtons["Shirt"] || [])];
+        } else {
+            buttonsToShow = this.outfitButtons[outfitType] || [];
         }
+
+        buttonsToShow.forEach(button => {
+            button.container.setVisible(true);
+            button.button.setAlpha(0);
+            button.icon.setAlpha(0);
+        });
+
+        this.tweens.add({
+            targets: this.background,
+            y: this.scale.height / 2.06,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+
+        const newPlayerY = this.scale.height - 800;
+        this.tweens.add({
+            targets: this.player,
+            y: newPlayerY,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.tweens.add({
+            targets: this.hair,
+            y: this.scale.height - 1020,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.tweens.add({
+            targets: this.expression,
+            y: this.scale.height - 1065,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+
+        const outfitContainers = buttonsToShow.map(button => button.container);
+        this.tweens.add({
+            targets: outfitContainers,
+            y: this.scale.height - 130,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.tweens.add({
+            targets: this.outfitButtonsTypePanel,
+            y: this.scale.height - 130,
+            duration: 500,
+            ease: 'Sine.easeInOut',
+            onComplete: () => {
+                buttonsToShow.forEach(button => {
+                    this.tweens.add({
+                        targets: [button.button, button.icon],
+                        alpha: 1,
+                        duration: 300,
+                        ease: 'Sine.easeInOut'
+                    });
+                });
+            }
+        });
+
+        Object.values(this.outfitButtons).flat().forEach(outfitButton => {
+            outfitButton.tweenOutfit(this.player.x, newPlayerY, 500, 'Sine.easeInOut');
+        });
+    }
+
+    async hideButtons(outfitType) {
+        return new Promise((resolve) => {
+            let buttonsToHide = [];
+            if (outfitType === "DressShirt") {
+                buttonsToHide = [...(this.outfitButtons["Dress"] || []), ...(this.outfitButtons["Shirt"] || [])];
+            } else {
+                buttonsToHide = this.outfitButtons[outfitType] || [];
+            }
+
+            buttonsToHide.forEach(button => {
+                this.tweens.add({
+                    targets: [button.button, button.icon],
+                    alpha: 0,
+                    duration: 300,
+                    ease: 'Linear'
+                });
+            });
+
+            setTimeout(() => {
+                const backgroundTweenPromise = new Promise((backgroundResolve) => {
+                    this.tweens.add({
+                        targets: this.background,
+                        y: this.scale.height / 2,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: backgroundResolve
+                    });
+                });
+
+                const playerTweenPromise = new Promise((playerResolve) => {
+                    const newPlayerY = this.scale.height - 600;
+                    this.tweens.add({
+                        targets: this.player,
+                        y: newPlayerY,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: playerResolve
+                    });
+
+                    Object.values(this.outfitButtons).flat().forEach(outfitButton => {
+                        outfitButton.tweenOutfit(this.player.x, newPlayerY, 500, 'Sine.easeInOut');
+                    });
+                });
+
+                const hairTweenPromise = new Promise((hairResolve) => {
+                    this.tweens.add({
+                        targets: this.hair,
+                        y: this.scale.height - 820,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: hairResolve
+                    });
+                });
+
+                const expressionTweenPromise = new Promise((expressionResolve) => {
+                    this.tweens.add({
+                        targets: this.expression,
+                        y: this.scale.height - 865,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: expressionResolve
+                    });
+                });
+
+                const panelTweenPromise = new Promise((panelResolve) => {
+                    this.tweens.add({
+                        targets: this.outfitButtonsTypePanel,
+                        y: this.scale.height + 300,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: () => {
+                            this.outfitButtonsTypePanel.setVisible(false);
+                            panelResolve();
+                        }
+                    });
+                });
+
+                const outfitContainers = buttonsToHide.map(button => button.container);
+                const containersTweenPromise = new Promise((containersResolve) => {
+                    this.tweens.add({
+                        targets: outfitContainers,
+                        y: this.scale.height + 200,
+                        duration: 500,
+                        ease: 'Sine.easeInOut',
+                        onComplete: () => {
+                            buttonsToHide.forEach(button => {
+                                button.container.setVisible(false);
+                            });
+                            containersResolve();
+                        }
+                    });
+                });
+
+                Promise.all([
+                    backgroundTweenPromise,
+                    playerTweenPromise,
+                    hairTweenPromise,
+                    expressionTweenPromise,
+                    panelTweenPromise,
+                    containersTweenPromise
+                ]).then(() => {
+                    console.log(`hideButtons completed: player.y = ${this.player.y}`);
+                    resolve();
+                });
+            }, 300);
+        });
+    }
+
+    displayBackButton(){
+         this.tweens.add({
+            targets: this.backButton,
+            y: 250,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    hideBackButton(){
+        this.backButton.disableInteractive();
+         this.tweens.add({
+            targets: this.backButton,
+            y: 0,
+            duration: 500,
+            ease: 'Sine.easeInOut'
+        });
     }
 }
-
-// Game Configuration
-const DESIGN_WIDTH = 720; 
-const DESIGN_HEIGHT = 1280; 
 
 const config = {
     type: Phaser.AUTO,
     scale: {
-        parent: 'phaser-game', 
-        mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
-        width: DESIGN_WIDTH,  
-        height: DESIGN_HEIGHT 
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 720,
+        height: 1280,
     },
     scene: Main
-    
 };
 
 const game = new Phaser.Game(config);
