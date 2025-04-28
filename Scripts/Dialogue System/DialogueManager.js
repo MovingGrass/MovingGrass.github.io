@@ -1,7 +1,7 @@
 export class DialogueManager {
     constructor(scene) {
         this.scene = scene;
-        this.dialogue = [];
+        this.dialogueContainer = {};
         this.dialogueIndex = 0;
         this.textObject = null;
         this.nameText = null;
@@ -15,24 +15,24 @@ export class DialogueManager {
     createDialogueUI(scene) {
         const { width, height } = this.scene.sys.game.config;
 
-        this.dialogueBox = this.scene.add.image(360, 1150, 'categoryButtonsPanel').setDisplaySize(720, 300);
-        this.nameText = this.scene.add.text(90, 1025, 'Tristan', {
+        this.dialogueBox = this.scene.add.nineslice(360, 1150, 'statPanel', '', 720, 300, 6, 6, 5, 5);
+        this.nameText = this.scene.add.text(30, 1025, 'Tristan', {
             fontSize: '32px',
             fill: '#00000',
             fontFamily: 'pixelFont',
             wordWrap: { width: width - 120 }
-        });
-        this.dialogueText = this.scene.add.text(90, 1075, 'Tristan is a very handsome man. He is the most amicable, loyal, attractive man i have ever met', {
+        }).setDepth(10);
+        this.dialogueText = this.scene.add.text(30, 1075, 'Tristan is a very handsome man. He is the most amicable, loyal, attractive man i have ever met', {
             fontSize: '24px',
             fill: '#00000',
             fontFamily: 'pixelFont',
             wordWrap: { width: width - 120 }
-        });
+        }).setDepth(10);
 
         this.hide();
     }
 
-    showDialogue(dialogue, onComplete = () => {}) {
+    showDialogue(dialogue, onComplete = () => { }) {
         this.dialogue = dialogue;
         this.dialogueIndex = 0;
         this.onDialogueComplete = onComplete;
@@ -55,7 +55,7 @@ export class DialogueManager {
     nextLine() {
         if (this.dialogueIndex >= this.dialogue.length) {
             this.hide();
-            if(this.onDialogueComplete) this.onDialogueComplete();
+            if (this.onDialogueComplete) this.onDialogueComplete();
             return;
         }
 

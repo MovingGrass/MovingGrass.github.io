@@ -31,18 +31,21 @@ export default class AssetLoader {
     scene.load.image('statPanel', 'Asset/UI/Cisini_UI_DressUp_MenuIcon_Scroll_Button.png');
     scene.load.image('emptyButton', 'Asset/UI/cisini_ui_button kosong.png');
     scene.load.image('backButton', 'Asset/UI/Cisini_UI_DressUp_BackButton_Icon.png');
+    scene.load.image('checkMark', 'Asset/UI/tanda_ceklis.png');
+    scene.load.image('xMark', 'Asset/UI/tanda_silang.png');
   }
 
   static loadSceneAssets(scene) {
     //Dress up minigame background
     scene.load.image('background', 'Asset/Background/Cisini_UI_DressUp_Background.png');
+
     //Player
     scene.load.image('player', 'Asset/Character/t_basebody_mc_anime_portrait.png');
     scene.load.image('expression', 'Asset/Character/Normal.png');
     scene.load.image('hair', 'Asset/Outfit/Hairs_upscaled/hair_01_black_F_out.png');
 
-    //Continue Button
-    
+    //Particle
+    scene.load.image('lightParticle', 'Asset/UI/particle.png');
 
     //Cutscene
     scene.load.image('cutscene1', 'Asset/Cutscene/Hangout1_Azril2.jpg');
@@ -159,8 +162,8 @@ export default class AssetLoader {
     scene.load.image('dress1Icon', 'Asset/ikon/Terusan/terusan17.png');
     scene.load.image('dress2Icon', 'Asset/ikon/Terusan/Kebaya_1.png');
     //scene.load.image('dress3Icon', 'Asset/ikon/Terusan/dress reward prereg.png');
-    scene.load.image('dress4Icon', 'Asset/ikon/Terusan/kebaya_2.png');
-    scene.load.image('dress5Icon', 'Asset/ikon/Terusan/kebaya_3.png');
+    scene.load.image('dress4Icon', 'Asset/ikon/Terusan/Kebaya_2.png');
+    scene.load.image('dress5Icon', 'Asset/ikon/Terusan/Kebaya_3.png');
     scene.load.image('dress6Icon', 'Asset/ikon/Terusan/skate.png');
     scene.load.image('dress7Icon', 'Asset/ikon/Terusan/terusan biru rample.png');
     scene.load.image('dress8Icon', 'Asset/ikon/Terusan/terusan07.png');

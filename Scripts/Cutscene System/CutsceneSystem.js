@@ -2,10 +2,7 @@
 import { DialogueManager } from '../Dialogue System/DialogueManager.js';
 // DialogueData Class
 import { DialogueData } from '../Dialogue System/DialogueData.js';
-//continue button
-import { ContinueButton } from '../UI/UIButton.js';
 
-import { OutfitButton } from '../UI/UIButton.js';
 
 export class CutsceneSystem {
     constructor(scene) {
@@ -88,31 +85,6 @@ export class CutsceneSystem {
         });
     }
 
-    createContinueButton() {
-        
-        const { width, height } = this.scene.sys.game.config;
-        const button = new ContinueButton(this.scene, width / 2, height - 80, 'emptyButton', 'Lanjut →', async () => {
-            if (this.canContinueToScene2()) {
-                this.scene.UIManager.clearDressupScene(this.scene);
-                const statPoints = this.scene.statTracker.getStatPoints();
-                this.initiateCutscene2(statPoints);
-            } else {
-                alert("Pakaian belum lengkap!");
-            }
-        });
     
-        this.scene.continueButton = button.container;
-    }
-    
-    canContinueToScene2() {
-        const selected = OutfitButton.selectedOutfits;
-    
-        const has = type => !!selected[type]?.current;
-    
-        const isSet1 = has("Dress") && has("Shoes");
-        const isSet2 = has("Shirt") && has("Underwear") && has("Socks") && has("Shoes");
-    
-        return isSet1 || isSet2;
-    }
     
 }
