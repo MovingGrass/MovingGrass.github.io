@@ -15,7 +15,7 @@ export class DialogueManager {
     createDialogueUI(scene) {
         const { width, height } = this.scene.sys.game.config;
 
-        this.dialogueBox = this.scene.add.nineslice(360, 1150, 'statPanel', '', 720, 300, 6, 6, 5, 5);
+        this.dialogueBox = this.scene.add.nineslice(360, 1150, 'statPanel', '', 720, 300, 6, 6, 5, 5).setDepth(10);
         this.nameText = this.scene.add.text(30, 1025, 'Tristan', {
             fontSize: '32px',
             fill: '#00000',
